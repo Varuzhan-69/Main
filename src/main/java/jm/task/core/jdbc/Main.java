@@ -6,34 +6,47 @@ import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.service.UserService;
 import jm.task.core.jdbc.service.UserServiceImpl;
+import jm.task.core.jdbc.util.ConfigUtil;
 
-import javax.sound.midi.Soundbank;
+
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Main {
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+
     public static void main(String[] args) {
-        UserService ser = new UserServiceImpl(new UserDaoHibernateImpl());
+        UserService userDao;
+        String type = ConfigUtil.getType();
+        switch (type.toLowerCase()) {
+            case "hibernate":
+                userDao = new UserServiceImpl(new UserDaoHibernateImpl());
+                logger.info("Подключение через Hibernate");
+                break;
+            case "jdbc":
+                userDao = new UserServiceImpl(new UserDaoJDBCImpl());
+                logger.info("Подключение через JDBC");
+                break;
+            default:
+                logger .severe("Неизвестный тип подключения " + type);
+                throw new RuntimeException();
+        }
 
-        ser.createUsersTable();
+        userDao.createUsersTable();
 
+        userDao.saveUser("Ivan", "Ivanov", (byte) 15);
+        userDao.saveUser("Dmitry", "Dmitriev", (byte) 25);
+        userDao.saveUser("Katya", "Katina", (byte) 45);
+        userDao.saveUser("Alexey", "Alexseev", (byte) 35);
 
-        ser.saveUser("Ivan", "Ivanov", (byte) 15);
-        ser.saveUser("Dmitry", "Dmitriev", (byte) 25);
-        ser.saveUser("Katya", "Katina", (byte) 45);
-        ser.saveUser("Alexey", "Alexseev", (byte) 35);
-
-
-        List<User> users = ser.getAllUsers();
-        System.out.println("Список пользователей в нашей базе:");
+        List<User> users = userDao.getAllUsers();
+        logger.info ("Список пользователей в нашей базе:");
         for (User user : users) {
             System.out.println(user);
-            // реализуйте алгоритм здесь
         }
-        ser.cleanUsersTable();
+        userDao.cleanUsersTable();
 
-
-        ser.dropUsersTable();
-
+        userDao.dropUsersTable();
 
     }
 }

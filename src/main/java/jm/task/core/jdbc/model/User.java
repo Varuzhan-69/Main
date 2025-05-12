@@ -19,19 +19,16 @@ public class User {
     private Byte age;
 
     public User() {
-
     }
 
     @Override
     public String toString() {
         return "Пользователь{" +
-                "ID=" + id +
-                ", Имя='" + name + '\'' +
+                "Имя='" + name + '\'' +
                 ", Фамилия='" + lastName + '\'' +
                 ", Возраст=" + age +
                 '}';
     }
-
     public User(String name, String lastName, Byte age) {
         this.name = name;
         this.lastName = lastName;
