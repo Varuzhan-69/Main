@@ -12,27 +12,27 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        UserService ser = new UserServiceImpl(new UserDaoHibernateImpl());
+        UserDao userDao = new UserDaoHibernateImpl();
 
-        ser.createUsersTable();
-
-
-        ser.saveUser("Ivan", "Ivanov", (byte) 15);
-        ser.saveUser("Dmitry", "Dmitriev", (byte) 25);
-        ser.saveUser("Katya", "Katina", (byte) 45);
-        ser.saveUser("Alexey", "Alexseev", (byte) 35);
+        userDao.createUsersTable();
 
 
-        List<User> users = ser.getAllUsers();
+        userDao.saveUser("Ivan", "Ivanov", (byte) 15);
+        userDao.saveUser("Dmitry", "Dmitriev", (byte) 25);
+        userDao.saveUser("Katya", "Katina", (byte) 45);
+        userDao.saveUser("Alexey", "Alexseev", (byte) 35);
+
+
+        List<User> users = userDao.getAllUsers();
         System.out.println("Список пользователей в нашей базе:");
         for (User user : users) {
             System.out.println(user);
             // реализуйте алгоритм здесь
         }
-        ser.cleanUsersTable();
+        userDao.cleanUsersTable();
 
 
-        ser.dropUsersTable();
+        userDao.dropUsersTable();
 
 
     }
