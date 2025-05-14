@@ -8,4 +8,6 @@
 /dataSources.local.xml
 /target/
 src/main/resources/
+.idea/
+
 
