@@ -10,6 +10,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
+import static jm.task.core.jdbc.dao.SQL.*;
+
 public class UserDaoHibernateImpl implements UserDao {
     private static final Logger logger = Logger.getLogger(UserDaoHibernateImpl.class.getName());
     public UserDaoHibernateImpl() {
@@ -18,23 +20,23 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        krasivyVyvod(session -> session.createNativeQuery(SQL.CREATE_TABLE).executeUpdate());
+        transaction(session -> session.createNativeQuery(CREATE_TABLE).executeUpdate());
     }
 
     @Override
     public void dropUsersTable() {
-        krasivyVyvod(session -> session.createNativeQuery(SQL.DROP_TABLE).executeUpdate());
+        transaction(session -> session.createNativeQuery(DROP_TABLE).executeUpdate());
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        krasivyVyvod(session -> session.save(new User(name, lastName, age)));
+        transaction(session -> session.save(new User(name, lastName, age)));
             logger.info("User с именем – " + name + " добавлен в базу данных");
     }
 
     @Override
     public void removeUserById(long id) {
-        krasivyVyvod(session -> session.remove(session.get(User.class, id)));
+        transaction(session -> session.remove(session.get(User.class, id)));
     }
 
     @Override
@@ -46,10 +48,10 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        krasivyVyvod(session -> session.createNativeQuery(SQL.CLEAN_USERS).executeUpdate());
+        transaction(session -> session.createNativeQuery(CLEAN_USERS).executeUpdate());
     }
 
-    public void krasivyVyvod(Consumer<Session> query) {
+    private void transaction (Consumer<Session> query) {
         Transaction transaction;
         try (Session session = Util.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();

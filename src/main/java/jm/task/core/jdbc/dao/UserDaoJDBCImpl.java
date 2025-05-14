@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
+import static jm.task.core.jdbc.dao.SQL.*;
+
 public class UserDaoJDBCImpl implements UserDao {
     private static final Logger logger = Logger.getLogger(UserDaoJDBCImpl.class.getName());
     private static Connection connection;
@@ -22,15 +24,15 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        krasivyVyvodJdbc(SQL.CREATE_TABLE);
+        transaction(CREATE_TABLE);
     }
 
     public void dropUsersTable() {
-        krasivyVyvodJdbc(SQL.DROP_TABLE);
+        transaction(DROP_TABLE);
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        krasivyVyvodJdbc(SQL.SAVE_USER, ps -> {
+        transaction(SAVE_USER, ps -> {
             try {
                 ps.setString(1, name);
                 ps.setString(2, lastName);
@@ -43,7 +45,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        krasivyVyvodJdbc(SQL.REMOVE_USER, ps -> {
+        transaction(REMOVE_USER, ps -> {
             try {
                 ps.setLong(1, id);
             } catch (SQLException e) {
@@ -54,7 +56,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        String sql = SQL.GET_ALL_USERS;
+        String sql = GET_ALL_USERS;
         try {
             PreparedStatement ps = connection.prepareStatement(sql);
             ResultSet resultSet = ps.executeQuery();
@@ -74,16 +76,16 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        krasivyVyvodJdbc(SQL.CLEAN_USERS);
+        transaction(CLEAN_USERS);
     }
-    public void krasivyVyvodJdbc (String sql) {
+    private void transaction (String sql) {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-    public void krasivyVyvodJdbc (String sql, Consumer<PreparedStatement> prs) {
+    private void transaction (String sql, Consumer<PreparedStatement> prs) {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             prs.accept(ps);
             ps.executeUpdate();
